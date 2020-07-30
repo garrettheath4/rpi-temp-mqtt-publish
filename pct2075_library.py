@@ -17,9 +17,24 @@ TC74_TO_220_I2C_ADDRESS=0x48
 
 i2c = busio.I2C(board.SCL, board.SDA)
 
-pct = adafruit_pct2075.PCT2075(i2c, address=TC74_TO_220_I2C_ADDRESS)
+tc74 = adafruit_pct2075.TC74(i2c, address=TC74_TO_220_I2C_ADDRESS)
 
-while True:
-    print(f"Temperature: {pct.temperature:.2f}")
-    time.sleep(0.5)
+def main():
+    if tc74.shutdown:
+        tc74.shutdown = False
+        if tc74.shutdown != False:
+            print("Unable to set shutdown bit to False")
+        else:
+            print("Successfully set shutdown bit to False")
+    else:
+        print("Sensor is in normal (non-shutdown) mode")
+    while True:
+        print(f"Data ready:  {tc74.data_ready}")
+        print(f"  raw temp:  {tc74._temperature:08b}")
+        print(f"Temperature: {tc74.temperature:.1f}")
+        print("====")
+        time.sleep(2.0)
 
+
+if __name__ == '__main__':
+    main()
