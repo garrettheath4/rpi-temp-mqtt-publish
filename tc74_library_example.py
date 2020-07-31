@@ -11,13 +11,13 @@ celcius whereas the TC74 only returns whole (integer) degrees celcius.
 import time
 import board
 import busio
-import adafruit_pct2075
+import adafruit_tc74
 
 TC74_TO_220_I2C_ADDRESS=0x48
 
 i2c = busio.I2C(board.SCL, board.SDA)
 
-tc74 = adafruit_pct2075.TC74(i2c, address=TC74_TO_220_I2C_ADDRESS)
+tc74 = adafruit_tc74.TC74(i2c, address=TC74_TO_220_I2C_ADDRESS)
 
 def main():
     if tc74.shutdown:
