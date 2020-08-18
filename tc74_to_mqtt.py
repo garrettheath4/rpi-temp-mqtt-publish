@@ -16,7 +16,7 @@ import busio
 import adafruit_tc74
 import paho.mqtt.client as mqtt
 
-TC74_TO_220_I2C_ADDRESS=0x48
+TC74_TO_220_I2C_ADDRESS = 0x48
 MQTT_TOPIC_TEMPERATURE = "perupino/garrett/temperatureF"
 
 
