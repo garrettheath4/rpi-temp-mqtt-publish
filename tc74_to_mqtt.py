@@ -19,6 +19,7 @@ import paho.mqtt.client as mqtt
 TC74_TO_220_I2C_ADDRESS=0x48
 MQTT_TOPIC_TEMPERATURE = "perupino/garrett/temperatureF"
 
+
 def main():
     temp_offset_c = -5
 
@@ -26,11 +27,11 @@ def main():
     tc74 = adafruit_tc74.TC74(i2c, address=TC74_TO_220_I2C_ADDRESS)
 
     client = mqtt.Client()
-    client.connect("mqtt.garrettheath4.com", 1883, 60)
+    client.connect("mqtt.gh4.pw", 1883, 60)
 
     if tc74.shutdown:
         tc74.shutdown = False
-        if tc74.shutdown != False:
+        if tc74.shutdown:
             print("Unable to set shutdown bit to False")
         else:
             print("Successfully set shutdown bit to False")
@@ -39,9 +40,18 @@ def main():
     while True:
         temp_c = tc74.temperature + temp_offset_c
         temp_f = (temp_c * 9 / 5) + 32
-        print(f"[{datetime.now()}]: {MQTT_TOPIC_TEMPERATURE}: {temp_f} ºF ({temp_c} ºC)")
-        client.publish(MQTT_TOPIC_TEMPERATURE, temp_f)
+        print(f"[{datetime.now()}]: {MQTT_TOPIC_TEMPERATURE}: "
+              f"{temp_f} ºF ({temp_c} ºC)")
+        info: mqtt.MQTTMessageInfo = client.publish(MQTT_TOPIC_TEMPERATURE, temp_f)
+        if info.rc != 0:
+            print(f"Publish returned a non-zero return value {info.rc}")
+            print("Will attempt to reconnect")
+            print(info)
+            client.disconnect()
+            return
         time.sleep(60.0)
 
+
 if __name__ == "__main__":
-    main()
+    while True:
+        main()
