@@ -10,4 +10,5 @@ python_version = "3.7"
 
 [packages]
 adafruit-circuitpython-tc74 = "*"
+adafruit-circuitpython-mcp3xxx = "*"
 paho-mqtt = "*"

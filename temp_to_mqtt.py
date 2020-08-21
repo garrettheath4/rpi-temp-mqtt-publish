@@ -16,12 +16,13 @@ from datetime import datetime
 from typing import Union
 
 import board
-import busio
+import digitalio
 import adafruit_tc74
+import adafruit_mcp3xxx.mcp3008 as MCP
+from adafruit_mcp3xxx.analog_in import AnalogIn
 import paho.mqtt.client as mqtt
 
 CONFIG_FILE_NAME = "config.ini"
-TC74_I2C_ADDRESS = 0x48
 DEFAULT_MQTT_TOPIC = "perupino/garrett/temperatureF"
 MQTT_CONFIG_SECTION = "MQTT"
 HOSTNAME_PROP_KEY = "Hostname"
@@ -31,7 +32,7 @@ TEMP_CONFIG_SECTION = "Temperature"
 COMPONENT_PROP_KEY = "Component"
 
 
-class AbstractSensorWrapper:
+class _AbstractTempSensor:
     def __init__(self, sensor, temp_offset_c: float = 0):
         self.sensor = sensor
         self.temp_offset_c = temp_offset_c
@@ -43,11 +44,17 @@ class AbstractSensorWrapper:
         return (self.get_temperature_in_c() * 9 / 5) + 32
 
 
-class TC74(AbstractSensorWrapper):
+class DigitalTC74(_AbstractTempSensor):
+    """
+    Measures the temperature of a TC74 digital sensor component using
+    the I2C data protocol.
+    """
+    TC74_I2C_ADDRESS = 0x48
+
     def __init__(self, i2c_address: int = TC74_I2C_ADDRESS,
                  temp_offset_c: float = -5):
-        i2c = busio.I2C(board.SCL, board.SDA)
-        sensor = adafruit_tc74.TC74(i2c, address=TC74_I2C_ADDRESS)
+        i2c = board.I2C()
+        sensor = adafruit_tc74.TC74(i2c, address=self.TC74_I2C_ADDRESS)
         super().__init__(sensor, temp_offset_c=temp_offset_c)
         if sensor.shutdown:
             sensor.shutdown = False
@@ -59,25 +66,44 @@ class TC74(AbstractSensorWrapper):
             logging.info("TC74 sensor is in normal (non-shutdown) mode")
 
 
-class TMP36(AbstractSensorWrapper):
-    def __init__(self, sensor):
-        # TODO
-        super().__init__(sensor)
+class AnalogTMP36(_AbstractTempSensor):
+    """
+    Measures the temperature of a TMP36 analog sensor component using an
+    MCP3008 chip to convert the analog signal to a digital one. The
+    analog sensor is connected to the channel 0 pin and the digital
+    measurement is fetched from the MCP3008 using the SPI data protocol.
+    The chip select pin is connected to GPIO 22.
+    """
+
+    def __init__(self):
+        spi = board.SPI()
+        chip_select = digitalio.DigitalInOut(board.D22)
+        mcp = MCP.MCP3008(spi, chip_select)
+        channel_0 = AnalogIn(mcp, MCP.P0)
+        super().__init__(channel_0)
+
+    def get_temperature_in_c(self) -> float:
+        return self.sensor.value
 
 
-def check_and_publish(sensor: AbstractSensorWrapper, client: mqtt.Client):
+def check_and_publish_forever(sensor: _AbstractTempSensor,
+                              mqtt_hostname: str, mqtt_port: int,
+                              mqtt_topic: str = DEFAULT_MQTT_TOPIC):
+    client = mqtt.Client()
+    client.connect(mqtt_hostname, mqtt_port, 60)
     while True:
         temp_c = sensor.get_temperature_in_c()
         temp_f = sensor.get_temperature_in_f()
-        logging.info(f"[{datetime.now()}]: {DEFAULT_MQTT_TOPIC}: "
-                     f"{temp_f} ºF ({temp_c} ºC)")
-        info: mqtt.MQTTMessageInfo = client.publish(DEFAULT_MQTT_TOPIC, temp_f)
+        logging.info(f"[{datetime.now()}]: {mqtt_topic}: {temp_f} ºF "
+                     f"({temp_c} ºC)")
+        info: mqtt.MQTTMessageInfo = mqtt_client.publish(mqtt_topic, temp_f)
         if info.rc != 0:
             logging.warning(f"Publish returned a non-zero return value"
                             f" {info.rc}")
             logging.debug(info)
-            logging.info("Attempting to reconnect")
+            # a forever loop outside of this function can reconnect
             client.disconnect()
+            time.sleep(10.0)   # cooldown
             return
         time.sleep(60.0)
 
@@ -143,15 +169,14 @@ def main():
             logging.info("Will try using default component: %s", component)
 
     if component.upper() == "TC74":
-        sensor = TC74()
+        sensor = DigitalTC74()
     else:
-        #TODO
-        sensor = TMP36()
-    client = mqtt.Client()
-    client.connect(hostname, port, 60)
-    check_and_publish(sensor, client)
+        sensor = AnalogTMP36()
+    check_and_publish_forever(sensor, hostname, port, mqtt_topic)
 
 
 if __name__ == "__main__":
+    # If check_and_publish_forever function exits, go ahead and start over
+    # from here to re-load the configuration and reinstantiate the objects
     while True:
         main()
