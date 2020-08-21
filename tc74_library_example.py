@@ -5,7 +5,7 @@ Source: https://github.com/adafruit/Adafruit_CircuitPython_PCT2075
 
 Note: This adafruit_pct2075 library might not calculate the temperature
 correctly since the PCT2075 seems to have an accuracy of less than 1 degree
-celcius whereas the TC74 only returns whole (integer) degrees celcius.
+Celsius whereas the TC74 only returns whole (integer) degrees Celsius.
 """
 
 import time

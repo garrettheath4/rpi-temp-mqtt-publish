@@ -106,7 +106,6 @@ Guides and Links
 
 * [Adafruit TC74 Python Library][TC74Library]
 * [Adafruit PCT2075 Python library](https://github.com/adafruit/Adafruit_CircuitPython_PCT2075)
-  on GitHub
 * [I2C Guide by Adafruit Learn](https://learn.adafruit.com/circuitpython-basics-i2c-and-spi/i2c-devices)
 * [SPI Guide by Adafruit Learn](https://learn.adafruit.com/circuitpython-basics-i2c-and-spi/spi-devices)
 * [ADC Guide by Adafruit Learn](https://learn.adafruit.com/reading-a-analog-in-and-controlling-audio-volume-with-the-raspberry-pi/overview)
