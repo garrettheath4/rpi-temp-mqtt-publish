@@ -20,6 +20,26 @@ pipenv run python3 temp_to_mqtt.py
 ```
 
 
+### Usage
+
+```shell script
+pipenv run python3 temp_to_mqtt.py
+```
+
+
+### System Service
+
+```shell script
+cd /etc/systemd/system
+sudo ln -s <REPO_ROOT>/temp-mqtt-publish.service
+sudo systemctl daemon-reload
+sudo systemctl start temp-mqtt-publish.service
+```
+
+To view the logs from the systemctl service, run `journalctl -u temp-mqtt-publish.service`.
+
+
+
 Hardware
 --------
 
