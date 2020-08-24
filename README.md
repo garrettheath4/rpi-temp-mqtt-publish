@@ -1,8 +1,8 @@
 Temperature Sensor to MQTT Publisher for Raspberry Pi
 =====================================================
 
-This is a Python library for communicating with a temperature sensor on a
-Raspberry Pi in order to read the ambient (room) temperature. This library
+This is a Python utility for communicating with a temperature sensor on a
+Raspberry Pi in order to read the ambient (room) temperature. This project
 supports two different temperature electronic components: a TC74 or a TMP36.
 Read below for the pros and cons of each.
 

@@ -6,9 +6,10 @@ name = "pypi"
 [dev-packages]
 
 [requires]
-python_version = "3.7"
+python_version = "3.5"
 
 [packages]
+adafruit-blinka = "*"
 adafruit-circuitpython-tc74 = "*"
 adafruit-circuitpython-mcp3xxx = "*"
 paho-mqtt = "*"

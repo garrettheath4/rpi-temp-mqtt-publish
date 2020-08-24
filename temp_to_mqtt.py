@@ -18,12 +18,13 @@ from typing import Union
 import board
 import digitalio
 import adafruit_tc74
+# noinspection PyPep8Naming
 import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
 import paho.mqtt.client as mqtt
 
 CONFIG_FILE_NAME = "config.ini"
-DEFAULT_MQTT_TOPIC = "perupino/garrett/temperatureF"
+DEFAULT_MQTT_TOPIC = "temperatureF"
 MQTT_CONFIG_SECTION = "MQTT"
 HOSTNAME_PROP_KEY = "Hostname"
 PORT_PROP_KEY = "Port"
@@ -54,7 +55,7 @@ class DigitalTC74(_AbstractTempSensor):
     def __init__(self, i2c_address: int = TC74_I2C_ADDRESS,
                  temp_offset_c: float = -5):
         i2c = board.I2C()
-        sensor = adafruit_tc74.TC74(i2c, address=self.TC74_I2C_ADDRESS)
+        sensor = adafruit_tc74.TC74(i2c, address=i2c_address)
         super().__init__(sensor, temp_offset_c=temp_offset_c)
         if sensor.shutdown:
             sensor.shutdown = False
@@ -89,20 +90,20 @@ class AnalogTMP36(_AbstractTempSensor):
 def check_and_publish_forever(sensor: _AbstractTempSensor,
                               mqtt_hostname: str, mqtt_port: int,
                               mqtt_topic: str = DEFAULT_MQTT_TOPIC):
-    client = mqtt.Client()
-    client.connect(mqtt_hostname, mqtt_port, 60)
+    mqtt_client = mqtt.Client()
+    mqtt_client.connect(mqtt_hostname, mqtt_port, 60)
     while True:
         temp_c = sensor.get_temperature_in_c()
         temp_f = sensor.get_temperature_in_f()
-        logging.info(f"[{datetime.now()}]: {mqtt_topic}: {temp_f} ºF "
-                     f"({temp_c} ºC)")
-        info: mqtt.MQTTMessageInfo = mqtt_client.publish(mqtt_topic, temp_f)
+        logging.info("[{}]: {}: {} ºF ({} ºC)".format(
+            datetime.now(), mqtt_topic, temp_f, temp_c))
+        info = mqtt_client.publish(mqtt_topic, temp_f)
         if info.rc != 0:
-            logging.warning(f"Publish returned a non-zero return value"
-                            f" {info.rc}")
+            logging.warning("Publish returned a non-zero return "
+                            "value {}".format(info.rc))
             logging.debug(info)
             # a forever loop outside of this function can reconnect
-            client.disconnect()
+            mqtt_client.disconnect()
             time.sleep(10.0)   # cooldown
             return
         time.sleep(60.0)
@@ -118,11 +119,11 @@ def get_config_prop(config: ConfigParser, section: str, key: str) \
 
 
 def main():
-    config_path: Path = Path(CONFIG_FILE_NAME)
-    hostname: str = ""
-    port: int = 1883
-    mqtt_topic: str = DEFAULT_MQTT_TOPIC
-    component: str = "TMP36"
+    config_path = Path(CONFIG_FILE_NAME)
+    hostname = ""
+    port = 1883
+    mqtt_topic = DEFAULT_MQTT_TOPIC
+    component = "TMP36"
     if config_path.is_file():
         config = ConfigParser()
         config.read(CONFIG_FILE_NAME)
