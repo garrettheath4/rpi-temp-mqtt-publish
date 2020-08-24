@@ -47,9 +47,8 @@ class _AbstractTempSensor:
     def get_temperature_in_c(self) -> float:
         temp = self.read_sensor_data() + self.temp_offset_c
         assert MIN_VALID_TEMP_C <= temp <= MAX_VALID_TEMP_C, \
-            "Temperature sensor seemed to return an invalid value {} outside " \
-            "of the expected range between " \
-            "{} and {}".format(temp, MIN_VALID_TEMP_C, MAX_VALID_TEMP_C)
+            "Temperature reading should be between {} C and {} C but was " \
+            "instead {} C".format(MIN_VALID_TEMP_C, MAX_VALID_TEMP_C, temp)
         return temp
 
     def get_temperature_in_f(self) -> float:
