@@ -1,10 +1,10 @@
 [Unit]
-Description=Detect the ambient room temperature using an attached TC74 sensor and publish it using MQTT.
+Description=Detect the ambient room temperature using an attached temperature sensor and publish it using MQTT.
 After=multi-user.target
 
 [Service]
 Type=idle
-ExecStart=/usr/bin/python3 /home/pi/temp_sensor_tc74/tc74_to_mqtt.py
+ExecStart=/usr/bin/python3 /home/pi/temp-mqtt-publish/temp_to_mqtt.py
 
 [Install]
 WantedBy=multi-user.target
