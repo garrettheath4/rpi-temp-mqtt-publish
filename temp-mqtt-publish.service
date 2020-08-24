@@ -4,6 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=idle
+WorkingDirectory=/home/pi/temp-mqtt-publish
 ExecStart=/usr/bin/python3 /home/pi/temp-mqtt-publish/temp_to_mqtt.py
 
 [Install]
