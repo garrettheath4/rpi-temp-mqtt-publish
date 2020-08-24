@@ -166,7 +166,7 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     # If check_and_publish_forever function exits, go ahead and start over
     # from here to re-load the configuration and reinstantiate the objects
     while True:
