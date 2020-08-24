@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "585e53ed35b5ad1d15c71ad3745fbd8db0f35ad00833243d8298ade66c7e789d"
+            "sha256": "51a1894d8e61f4bbcc9b373b725919e8365a8dd4f92eca55dfe81e9888cf4f07"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -20,7 +20,7 @@
             "hashes": [
                 "sha256:1996b1f3653bdbf0bac1eff8553b2e21eb7d355037b82390d728d832e3dd152e"
             ],
-            "markers": "python_full_version >= '3.5.0'",
+            "index": "pypi",
             "version": "==5.3.0"
         },
         "adafruit-circuitpython-busdevice": {
@@ -63,6 +63,15 @@
             "markers": "python_full_version >= '3.5.0'",
             "version": "==1.1.5"
         },
+        "aenum": {
+            "hashes": [
+                "sha256:81828d1fbe20b6b188d75b21a0fa936d7d929d839ef843ef385d9c2a97082864",
+                "sha256:85adabd63183d283250bf7acd9fa23c7e45b1c8d1efbb84b233160f3c438dc18",
+                "sha256:bcb4fd350d36af336b6b5898e5d89f76344621d9c1b2de69c81acf1d3e6b1145"
+            ],
+            "markers": "python_version == '3.5'",
+            "version": "==2.2.4"
+        },
         "paho-mqtt": {
             "hashes": [
                 "sha256:e3d286198baaea195c8b3bc221941d25a3ab0e1507fc1779bdb7473806394be4"
@@ -90,6 +99,20 @@
                 "sha256:4e9b72cc4a4205ca64fbf1f3fff39a335512166c151ad103e55c8223ac147362"
             ],
             "version": "==1.0.2"
+        },
+        "rpi-ws281x": {
+            "hashes": [
+                "sha256:461153b0ae29f28ebf7fbca781a92759a5f622d5478d3e61b0475fb0a7da6fb3",
+                "sha256:6cfb8c0c429dee312b2173ea3968c3da2a3625ce57bbf580ee9f49c3edaf4504",
+                "sha256:7175e708d6085bc02a9d0b8227797d697e34fd00787030ae5f119fe2f4f90889"
+            ],
+            "version": "==4.2.4"
+        },
+        "rpi.gpio": {
+            "hashes": [
+                "sha256:7424bc6c205466764f30f666c18187a0824077daf20b295c42f08aea2cb87d3f"
+            ],
+            "version": "==0.7.0"
         },
         "sysv-ipc": {
             "hashes": [
