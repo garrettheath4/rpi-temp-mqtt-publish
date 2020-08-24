@@ -25,11 +25,15 @@ import paho.mqtt.client as mqtt
 
 CONFIG_FILE_NAME = "config.ini"
 DEFAULT_MQTT_TOPIC = "temperatureF"
+
 MQTT_CONFIG_SECTION = "MQTT"
 HOSTNAME_PROP_KEY = "Hostname"
 TOPIC_PROP_KEY = "Topic"
 TEMP_CONFIG_SECTION = "Temperature"
 COMPONENT_PROP_KEY = "Component"
+
+MIN_VALID_TEMP_C = -40
+MAX_VALID_TEMP_C = 125
 
 
 class _AbstractTempSensor:
@@ -37,8 +41,16 @@ class _AbstractTempSensor:
         self.sensor = sensor
         self.temp_offset_c = temp_offset_c
 
+    def read_sensor_data(self) -> float:
+        return self.sensor.temperature
+
     def get_temperature_in_c(self) -> float:
-        return self.sensor.temperature + self.temp_offset_c
+        temp = self.read_sensor_data() + self.temp_offset_c
+        assert MIN_VALID_TEMP_C <= temp <= MAX_VALID_TEMP_C, \
+            "Temperature sensor seemed to return an invalid value {} outside " \
+            "of the expected range between " \
+            "{} and {}".format(temp, MIN_VALID_TEMP_C, MAX_VALID_TEMP_C)
+        return temp
 
     def get_temperature_in_f(self) -> float:
         return (self.get_temperature_in_c() * 9 / 5) + 32
@@ -82,7 +94,7 @@ class AnalogTMP36(_AbstractTempSensor):
         channel_0 = AnalogIn(mcp, MCP.P0)
         super().__init__(channel_0)
 
-    def get_temperature_in_c(self) -> float:
+    def read_sensor_data(self) -> float:
         return self.sensor.value
 
 
