@@ -7,6 +7,19 @@ supports two different temperature electronic components: a TC74 or a TMP36.
 Read below for the pros and cons of each.
 
 
+Software
+--------
+
+### Installation
+
+```shell script
+sudo pip3 install --upgrade pip
+curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+pipenv install
+pipenv run python3 temp_to_mqtt.py
+```
+
+
 Hardware
 --------
 
