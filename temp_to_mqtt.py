@@ -88,10 +88,10 @@ class AnalogTMP36(_AbstractTempSensor):
 
 
 def check_and_publish_forever(sensor: _AbstractTempSensor,
-                              mqtt_hostname: str, mqtt_port: int,
+                              mqtt_hostname: str,
                               mqtt_topic: str = DEFAULT_MQTT_TOPIC):
     mqtt_client = mqtt.Client()
-    mqtt_client.connect(mqtt_hostname, mqtt_port, 60)
+    mqtt_client.connect(mqtt_hostname)
     while True:
         temp_c = sensor.get_temperature_in_c()
         temp_f = sensor.get_temperature_in_f()
@@ -121,15 +121,14 @@ def get_config_prop(config: ConfigParser, section: str, key: str) \
 def main():
     config_path = Path(CONFIG_FILE_NAME)
     hostname = ""
-    port = 1883
     mqtt_topic = DEFAULT_MQTT_TOPIC
     component = "TMP36"
     if config_path.is_file():
         config = ConfigParser()
         config.read(CONFIG_FILE_NAME)
 
-        hostname_config_val = get_config_prop(config, MQTT_CONFIG_SECTION,
-                                              HOSTNAME_PROP_KEY)
+        hostname_config_val = \
+            get_config_prop(config, MQTT_CONFIG_SECTION, HOSTNAME_PROP_KEY)
         if hostname_config_val:
             hostname = hostname_config_val
         else:
@@ -141,17 +140,8 @@ def main():
                           MQTT_CONFIG_SECTION, CONFIG_FILE_NAME)
             exit(1)
 
-        port_config_val = get_config_prop(config, MQTT_CONFIG_SECTION,
-                                          PORT_PROP_KEY)
-        if port_config_val:
-            port = port_config_val
-        else:
-            logging.warning("%s key not found in the %s configuration file",
-                            HOSTNAME_PROP_KEY, CONFIG_FILE_NAME)
-            logging.info("Using default port number: %d", port)
-
-        topic_config_val = get_config_prop(config, MQTT_CONFIG_SECTION,
-                                           TOPIC_PROP_KEY)
+        topic_config_val = \
+            get_config_prop(config, MQTT_CONFIG_SECTION, TOPIC_PROP_KEY)
         if topic_config_val:
             mqtt_topic = topic_config_val
         else:
@@ -159,8 +149,8 @@ def main():
                             TOPIC_PROP_KEY, CONFIG_FILE_NAME)
             logging.info("Using default MQTT topic: %s", mqtt_topic)
 
-        component_config_val = get_config_prop(config, TEMP_CONFIG_SECTION,
-                                               COMPONENT_PROP_KEY)
+        component_config_val = \
+            get_config_prop(config, TEMP_CONFIG_SECTION, COMPONENT_PROP_KEY)
         if component_config_val:
             if component_config_val.upper() == "TC74":
                 component = "TC74"
@@ -173,10 +163,11 @@ def main():
         sensor = DigitalTC74()
     else:
         sensor = AnalogTMP36()
-    check_and_publish_forever(sensor, hostname, port, mqtt_topic)
+    check_and_publish_forever(sensor, hostname, mqtt_topic)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     # If check_and_publish_forever function exits, go ahead and start over
     # from here to re-load the configuration and reinstantiate the objects
     while True:
