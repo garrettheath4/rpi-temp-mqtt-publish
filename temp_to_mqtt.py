@@ -9,7 +9,7 @@ Celsius whereas the TC74 only returns whole (integer) degrees Celsius.
 """
 
 import logging
-from pathlib import Path
+import os
 from configparser import ConfigParser
 import time
 from datetime import datetime
@@ -41,18 +41,15 @@ class _AbstractTempSensor:
         self.sensor = sensor
         self.temp_offset_c = temp_offset_c
 
-    def read_sensor_data(self) -> float:
+    def read_raw_sensor_temp_c(self) -> float:
         return self.sensor.temperature
 
     def get_temperature_in_c(self) -> float:
-        temp = self.read_sensor_data() + self.temp_offset_c
+        temp = self.read_raw_sensor_temp_c() + self.temp_offset_c
         assert MIN_VALID_TEMP_C <= temp <= MAX_VALID_TEMP_C, \
             "Temperature reading should be between {} C and {} C but was " \
             "instead {} C".format(MIN_VALID_TEMP_C, MAX_VALID_TEMP_C, temp)
         return temp
-
-    def get_temperature_in_f(self) -> float:
-        return (self.get_temperature_in_c() * 9 / 5) + 32
 
 
 class DigitalTC74(_AbstractTempSensor):
@@ -93,24 +90,32 @@ class AnalogTMP36(_AbstractTempSensor):
         channel_0 = AnalogIn(mcp, MCP.P0)
         super().__init__(channel_0)
 
-    def read_sensor_data(self) -> float:
-        return self.sensor.value
+    def read_raw_sensor_temp_c(self) -> float:
+        voltage = self.sensor.voltage
+        logging.debug("Sensor value=%d voltage=%f", self.sensor.value, voltage)
+        temp_c = (voltage * 1000 - 500) / 10
+        return temp_c
+
+
+def celsius_to_fahrenheit(celsius: float) -> float:
+    return (celsius * 9 / 5) + 32
 
 
 def check_and_publish_forever(sensor: _AbstractTempSensor,
                               mqtt_hostname: str,
                               mqtt_topic: str = DEFAULT_MQTT_TOPIC):
     mqtt_client = mqtt.Client()
+    logging.info("Connecting to MQTT server at %s", mqtt_hostname)
     mqtt_client.connect(mqtt_hostname)
     while True:
         temp_c = sensor.get_temperature_in_c()
-        temp_f = sensor.get_temperature_in_f()
-        logging.info("[{}]: {}: {} ºF ({} ºC)".format(
-            datetime.now(), mqtt_topic, temp_f, temp_c))
+        temp_f = celsius_to_fahrenheit(temp_c)
+        logging.info("[%s]: %s: %f ºF (%f ºC)",
+                     datetime.now(), mqtt_topic, temp_f, temp_c)
         info = mqtt_client.publish(mqtt_topic, temp_f)
         if info.rc != 0:
-            logging.warning("Publish returned a non-zero return "
-                            "value {}".format(info.rc))
+            logging.warning("Publish returned a non-zero return value %d",
+                            info.rc)
             logging.debug(info)
             # a forever loop outside of this function can reconnect
             mqtt_client.disconnect()
@@ -129,11 +134,10 @@ def get_config_prop(config: ConfigParser, section: str, key: str) \
 
 
 def main():
-    config_path = Path(CONFIG_FILE_NAME)
     hostname = ""
     mqtt_topic = DEFAULT_MQTT_TOPIC
     component = "TMP36"
-    if config_path.is_file():
+    if os.path.isfile(CONFIG_FILE_NAME):
         config = ConfigParser()
         config.read(CONFIG_FILE_NAME)
 
@@ -168,6 +172,9 @@ def main():
             logging.warning("%s key not found in the %s configuration file",
                             COMPONENT_PROP_KEY, CONFIG_FILE_NAME)
             logging.info("Will try using default component: %s", component)
+    else:
+        logging.warning("No configuration file found at %s (current "
+                        "directory: %s)", CONFIG_FILE_NAME, os.getcwd())
 
     if component.upper() == "TC74":
         sensor = DigitalTC74()
