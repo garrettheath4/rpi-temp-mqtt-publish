@@ -128,10 +128,21 @@ TC74.
 #### TMP36
 
 To learn how to connect and interface with the TMP36, follow the [TMP36 Guide
-by Adafruit][LearnTMP36]. This guide assumses that your microcontroller has an
+by Adafruit][LearnTMP36]. This guide assumes that your microcontroller has an
 ADC built-in. If your microcontroller does not or if you are using a Raspberry
 Pi, you'll need to get an MCP3008 and follow the [Analog Inputs Guide for
 Raspberry Pi][LearnAnalog], also by Adafruit.
+
+
+### Breadboard Diagrams
+
+#### TMP36
+
+If you're using the TMP36 sensor with a Raspberry Pi, you'll have to also use
+an ADC chip like the MCP3008. Here is a diagram for how to wire up these
+components on a breadboard.
+
+![TMP36 and MCP3008 breadboard schematic](./TMP36_MCP3008_Breadboard.svg)
 
 
 Guides and Links
