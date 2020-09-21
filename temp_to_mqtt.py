@@ -15,13 +15,13 @@ import time
 from datetime import datetime
 from typing import Union
 
-import board
-import digitalio
-import adafruit_tc74
+import board                                     # type: ignore
+import digitalio                                 # type: ignore
+import adafruit_tc74                             # type: ignore
 # noinspection PyPep8Naming
-import adafruit_mcp3xxx.mcp3008 as MCP
-from adafruit_mcp3xxx.analog_in import AnalogIn
-import paho.mqtt.client as mqtt
+import adafruit_mcp3xxx.mcp3008 as MCP           # type: ignore
+from adafruit_mcp3xxx.analog_in import AnalogIn  # type: ignore
+import paho.mqtt.client as mqtt                  # type: ignore
 
 CONFIG_FILE_NAME = "config.ini"
 DEFAULT_MQTT_TOPIC = "temperatureF"
@@ -106,19 +106,31 @@ def check_and_publish_forever(sensor: _AbstractTempSensor,
                               mqtt_topic: str = DEFAULT_MQTT_TOPIC):
     mqtt_client = mqtt.Client()
     logging.info("Connecting to MQTT server at %s", mqtt_hostname)
-    mqtt_client.connect(mqtt_hostname)
+    try:
+        mqtt_client.connect(mqtt_hostname)
+    except:  # catch *all* exceptions
+        logging.exception("MQTT client connection exception caught")
+        return False
     while True:
         temp_c = sensor.get_temperature_in_c()
         temp_f = celsius_to_fahrenheit(temp_c)
         logging.info("[%s]: %s: %f ºF (%f ºC)",
                      datetime.now(), mqtt_topic, temp_f, temp_c)
-        info = mqtt_client.publish(mqtt_topic, temp_f)
+        try:
+            info = mqtt_client.publish(mqtt_topic, round(temp_f, 2))
+        except:  # catch *all* exceptions
+            logging.exception("MQTT client publish exception caught")
+            return False
         if info.rc != 0:
             logging.warning("Publish returned a non-zero return value %d",
                             info.rc)
             logging.debug(info)
             # a forever loop outside of this function can reconnect
-            mqtt_client.disconnect()
+            try:
+                mqtt_client.disconnect()
+            except:  # catch *all* exceptions
+                logging.exception("MQTT client disconnect exception caught. "
+                                  "Ignoring.")
             time.sleep(10.0)   # cooldown
             return
         time.sleep(60.0)
@@ -188,4 +200,8 @@ if __name__ == "__main__":
     # If check_and_publish_forever function exits, go ahead and start over
     # from here to re-load the configuration and reinstantiate the objects
     while True:
-        main()
+        retval = main()
+        if retval == False:
+            logging.warning("Main loop encountered an error and returned False")
+        logging.info("Sleeping for 60 seconds before restarting main loop")
+        time.sleep(60)
