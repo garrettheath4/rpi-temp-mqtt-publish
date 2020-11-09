@@ -31,6 +31,7 @@ HOSTNAME_PROP_KEY = "Hostname"
 TOPIC_PROP_KEY = "Topic"
 TEMP_CONFIG_SECTION = "Temperature"
 COMPONENT_PROP_KEY = "Component"
+OFFSET_C_PROP_KEY = "OffsetC"
 
 MIN_VALID_TEMP_C = -40
 MAX_VALID_TEMP_C = 125
@@ -83,12 +84,12 @@ class AnalogTMP36(_AbstractTempSensor):
     The chip select pin is connected to GPIO 22.
     """
 
-    def __init__(self):
+    def __init__(self, temp_offset_c: float = 0):
         spi = board.SPI()
         chip_select = digitalio.DigitalInOut(board.D22)
         mcp = MCP.MCP3008(spi, chip_select)
         channel_0 = AnalogIn(mcp, MCP.P0)
-        super().__init__(channel_0)
+        super().__init__(channel_0, temp_offset_c)
 
     def read_raw_sensor_temp_c(self) -> float:
         voltage = self.sensor.voltage
@@ -145,10 +146,19 @@ def get_config_prop(config: ConfigParser, section: str, key: str) \
     return config[section][key]
 
 
+def isfloat(value):
+  try:
+    float(value)
+    return True
+  except ValueError:
+    return False
+
+
 def main():
     hostname = ""
     mqtt_topic = DEFAULT_MQTT_TOPIC
     component = "TMP36"
+    offset_c: float = 0
     if os.path.isfile(CONFIG_FILE_NAME):
         config = ConfigParser()
         config.read(CONFIG_FILE_NAME)
@@ -184,14 +194,30 @@ def main():
             logging.warning("%s key not found in the %s configuration file",
                             COMPONENT_PROP_KEY, CONFIG_FILE_NAME)
             logging.info("Will try using default component: %s", component)
+
+        offset_c_config_val = \
+            get_config_prop(config, TEMP_CONFIG_SECTION, OFFSET_C_PROP_KEY)
+        if offset_c_config_val:
+            if isfloat(offset_c_config_val):
+                offset_c = float(offset_c_config_val)
+                logging.debug("Celsius offset set to %f", offset_c)
+            else:
+                logging.warning("%s.%s value is not a float: %s",
+                                TEMP_CONFIG_SECTION, OFFSET_C_PROP_KEY,
+                                offset_c_config_val)
+        else:
+            logging.warning("%s key not found in the %s configuration file",
+                            OFFSET_C_PROP_KEY, CONFIG_FILE_NAME)
+            logging.info("Defaulting to no temperature offset. Configure with "
+                         "%s.%s", TEMP_CONFIG_SECTION, OFFSET_C_PROP_KEY)
     else:
         logging.warning("No configuration file found at %s (current "
                         "directory: %s)", CONFIG_FILE_NAME, os.getcwd())
 
     if component.upper() == "TC74":
-        sensor = DigitalTC74()
+        sensor = DigitalTC74(temp_offset_c=offset_c)
     else:
-        sensor = AnalogTMP36()
+        sensor = AnalogTMP36(temp_offset_c=offset_c)
     check_and_publish_forever(sensor, hostname, mqtt_topic)
 
 
