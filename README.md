@@ -47,9 +47,11 @@ To view the logs from the systemctl service, run `journalctl -u temp-mqtt-publis
 | TC74    | digital | ±2             | I2C           |
 | TMP36   | analog  | ±2             | SPI (for ADC) |
 | ADT7410 | digital | ±0.5           | I2C           |
-| HTS221  | digital | ±0.5           | I2C or SPI    |
+| HTS221⁺ | digital | ±0.5           | I2C or SPI    |
 | TMP117  | digital | ±0.1           | I2C           |
 | MCP9808 | digital | ±0.0625        | I2C           |
+
+**⁺ Note:** The HTS221 also measuers humidity in addition to temperature.
 
 
 #### TC74 Sensor ####
