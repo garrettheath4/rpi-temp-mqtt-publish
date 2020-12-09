@@ -45,11 +45,26 @@ Hardware
 
 ### Sensor Options
 
+| Sensor  | Type    | Precision (ºC) | Protocol      |
+|---------|---------|----------------|---------------|
+| TC74    | digital | ±2             | I2C           |
+| TMP36   | analog  | ±2             | SPI (for ADC) |
+| ADT7410 | digital | ±0.5           | I2C           |
+| HTS221  | digital | ±0.5           | I2C or SPI    |
+| TMP117  | digital | ±0.1           | I2C           |
+| MCP9808 | digital | ±0.0625        | I2C           |
+
+
+#### TC74
+
 The [TC74] aka TC74A0 aka TC74A0-5.0VAT is a digital temperature sensor from
 Adafruit that uses the I2C data protocol to send and receive data from a
 controller device (e.g. a Raspberry Pi). Because it is a _digital_ sensor, it
 spits out a ready-to-use digital reading of the temperature. This makes it easy
 to work with but it is not the most precise temperature sensor.
+
+
+#### TMP36 (with MCP3008 ADC)
 
 The [TMP36], on the other hand, is a much more precise _analog_ temperature
 sensor. Because it's an analog sensor, you'll have to use some sort of
@@ -57,6 +72,17 @@ Analog-to-Digital Converter (ADC) to convert the variable analog output to a
 digital form that you can read and use in scripts. If your microcontroller or
 single-board computer (like a Raspberry Pi) does not have a built-in ADC, you
 can use the [MCP3008 ADC] to digitize the analog signals for you.
+
+
+#### Other Sensors
+
+Here are additional temperature sensors that have not yet been tested. Support
+for these sensors will be added to this library after they have been tested.
+
+* [ADT7410]
+* [HTS221]
+* [TMP117]
+* [MCP9808]
 
 
 ### Board Pins (on Raspberry Pi)
@@ -160,6 +186,10 @@ Guides and Links
 [TC74]: https://www.adafruit.com/product/4375
 [TMP36]: https://www.adafruit.com/product/165
 [MCP3008 ADC]: https://www.adafruit.com/product/856
+[ADT7410]: https://www.adafruit.com/product/4089
+[HTS221]: https://www.adafruit.com/product/4535
+[TMP117]: https://www.adafruit.com/product/4821
+[MCP9808]: https://www.adafruit.com/product/1782
 [LearnI2C]: https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c
 [TC74 datasheet]: https://cdn-shop.adafruit.com/product-files/4375/4375_TC74A0-5.0VAT-Microchip-datasheet.pdf
 [TC74Library]: https://github.com/adafruit/Adafruit_CircuitPython_TC74
