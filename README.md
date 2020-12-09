@@ -1,5 +1,4 @@
-Temperature Sensor to MQTT Publisher for Raspberry Pi
-=====================================================
+# Temperature Sensor to MQTT Publisher for Raspberry Pi #
 
 This is a Python utility for communicating with a temperature sensor on a
 Raspberry Pi in order to read the ambient (room) temperature. This project
@@ -7,10 +6,9 @@ supports two different temperature electronic components: a TC74 or a TMP36.
 Read below for the pros and cons of each.
 
 
-Software
---------
+## Software ##
 
-### Installation
+### Installation ###
 
 ```shell script
 sudo pip3 install --upgrade pip
@@ -20,14 +18,14 @@ pipenv run python3 temp_to_mqtt.py
 ```
 
 
-### Usage
+### Usage ###
 
 ```shell script
 pipenv run python3 temp_to_mqtt.py
 ```
 
 
-### System Service
+### System Service ###
 
 ```shell script
 cd /etc/systemd/system
@@ -40,10 +38,9 @@ To view the logs from the systemctl service, run `journalctl -u temp-mqtt-publis
 
 
 
-Hardware
---------
+## Hardware ##
 
-### Sensor Options
+### Sensor Options ###
 
 | Sensor  | Type    | Precision (ºC) | Protocol      |
 |---------|---------|----------------|---------------|
@@ -55,7 +52,7 @@ Hardware
 | MCP9808 | digital | ±0.0625        | I2C           |
 
 
-#### TC74
+#### TC74 Sensor ####
 
 The [TC74] aka TC74A0 aka TC74A0-5.0VAT is a digital temperature sensor from
 Adafruit that uses the I2C data protocol to send and receive data from a
@@ -64,7 +61,7 @@ spits out a ready-to-use digital reading of the temperature. This makes it easy
 to work with but it is not the most precise temperature sensor.
 
 
-#### TMP36 (with MCP3008 ADC)
+#### TMP36 Sensor (with MCP3008 ADC) ####
 
 The [TMP36], on the other hand, is a much more precise _analog_ temperature
 sensor. Because it's an analog sensor, you'll have to use some sort of
@@ -74,7 +71,7 @@ single-board computer (like a Raspberry Pi) does not have a built-in ADC, you
 can use the [MCP3008 ADC] to digitize the analog signals for you.
 
 
-#### Other Sensors
+#### Other Sensors ####
 
 Here are additional temperature sensors that have not yet been tested. Support
 for these sensors will be added to this library after they have been tested.
@@ -85,9 +82,9 @@ for these sensors will be added to this library after they have been tested.
 * [MCP9808]
 
 
-### Board Pins (on Raspberry Pi)
+### Board Pins (on Raspberry Pi) ###
 
-#### I2C Pins (for TC74)
+#### I2C Pins (for TC74) ####
 
 I2C ports on Raspberry Pi are: GPIO (aka BCM) 2 for Data and GPIO 3 for Clock.
 
@@ -100,7 +97,7 @@ Run the `pinout` command to see the pins in the terminal on Rasperry Pi OS.
 | SCL (Clock) | GPIO 3   | Pin 5     |
 
 
-#### SPI Pins (for TMP36)
+#### SPI Pins (for TMP36) ####
 
 | SPI Purpose                      | GPIO/BCM | Board Pin |
 |----------------------------------|----------|-----------|
@@ -109,7 +106,7 @@ Run the `pinout` command to see the pins in the terminal on Rasperry Pi OS.
 | MOSI (Master Output Slave Input) | GPIO 10  | Pin 19    |
 
 
-### Firmware
+### Firmware ###
 
 In order to enable the I2C or SPI functionality on a Raspberry Pi, you need to
 run `sudo raspi-config` and go to _Interfacing Options > I2C/SPI > Enable_.
@@ -120,9 +117,9 @@ I2C address grid.
 Source: [Adafruit Learn: GPIO Setup][LearnI2C]
 
 
-### Sensor Pins
+### Sensor Interfaces ###
 
-#### TC74
+#### TC74 Pins ####
 
 Assuming the TC74 chip used is of the TO-220 form factor, the 5 pins will be in
 a straight line and are numbered 1 through 5 starting with 1 on the left and 5
@@ -151,7 +148,7 @@ to install and run the code necessary to read the temperature data from the
 TC74.
 
 
-#### TMP36
+#### TMP36 Interface ####
 
 To learn how to connect and interface with the TMP36, follow the [TMP36 Guide
 by Adafruit][LearnTMP36]. This guide assumes that your microcontroller has an
@@ -160,9 +157,9 @@ Pi, you'll need to get an MCP3008 and follow the [Analog Inputs Guide for
 Raspberry Pi][LearnAnalog], also by Adafruit.
 
 
-### Breadboard Diagrams
+### Breadboard Diagrams ###
 
-#### TMP36
+#### TMP36 Diagram ####
 
 If you're using the TMP36 sensor with a Raspberry Pi, you'll have to also use
 an ADC chip like the MCP3008. Here is a diagram for how to wire up these
@@ -171,8 +168,7 @@ components on a breadboard.
 ![TMP36 and MCP3008 breadboard schematic](./TMP36_MCP3008_Breadboard.svg)
 
 
-Guides and Links
-----------------
+## Guides and Links ##
 
 * [Adafruit TC74 Python Library][TC74Library]
 * [Adafruit PCT2075 Python library](https://github.com/adafruit/Adafruit_CircuitPython_PCT2075)
