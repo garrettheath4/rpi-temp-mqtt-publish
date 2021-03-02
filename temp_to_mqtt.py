@@ -113,7 +113,15 @@ def check_and_publish_forever(sensor: _AbstractTempSensor,
         logging.exception("MQTT client connection exception caught")
         return False
     while True:
-        temp_c = sensor.get_temperature_in_c()
+        temp_c = None
+        while not temp_c:
+            try:
+                temp_c = sensor.get_temperature_in_c()
+            except AssertionError:
+                logging.exception("Sensor raised AssertionError due to invalid "
+                                  "reading. Will wait 10 seconds and try "
+                                  "again.")
+                time.sleep(10.0)
         temp_f = celsius_to_fahrenheit(temp_c)
         logging.info("[%s]: %s: %f ºF (%f ºC)",
                      datetime.now(), mqtt_topic, temp_f, temp_c)
@@ -222,7 +230,7 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     # If check_and_publish_forever function exits, go ahead and start over
     # from here to re-load the configuration and reinstantiate the objects
     while True:
@@ -231,3 +239,5 @@ if __name__ == "__main__":
             logging.warning("Main loop encountered an error and returned False")
         logging.info("Sleeping for 60 seconds before restarting main loop")
         time.sleep(60)
+
+# vim: set ts=4 sw=4 vts=4 vsts=4 sta sts=4 sr et ai si tw=80:
