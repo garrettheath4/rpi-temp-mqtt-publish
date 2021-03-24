@@ -105,7 +105,7 @@ def celsius_to_fahrenheit(celsius: float) -> float:
 def check_and_publish_forever(sensor: _AbstractTempSensor,
                               mqtt_hostname: str,
                               mqtt_topic: str = DEFAULT_MQTT_TOPIC):
-    mqtt_client = mqtt.Client()
+    mqtt_client = mqtt.Client(clean_session=True)
     logging.info("Connecting to MQTT server at %s", mqtt_hostname)
     try:
         mqtt_client.connect(mqtt_hostname)
@@ -118,7 +118,7 @@ def check_and_publish_forever(sensor: _AbstractTempSensor,
         logging.info("[%s]: %s: %f ºF (%f ºC)",
                      datetime.now(), mqtt_topic, temp_f, temp_c)
         try:
-            info = mqtt_client.publish(mqtt_topic, round(temp_f, 2))
+            info = mqtt_client.publish(mqtt_topic, round(temp_f, 2), retain=True)
         except:  # catch *all* exceptions
             logging.exception("MQTT client publish exception caught")
             return False
