@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="pi@pi-top.local:22" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="pi@piserver.gh4.pw:22 agent" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="pi@pi-top.local:22">
+      <paths name="pi@piserver.gh4.pw:22">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/pycharm_project_816" local="$PROJECT_DIR$" />
+            <mapping deploy="/tmp/pycharm_project_186" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="pi@piserver.gh4.pw:22 agent">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/pycharm_project_21" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
